@@ -1,6 +1,6 @@
 # Nuclear Segmentation
 
-My master thesis is in the Chao lab at the Friedrich Miescher Institute for Biomedical Research (Basel, Switzerland). Part of my project involved confocal microscopy of cellular samples. After realizing that traditional, thresholding based approaches are only able to segment so much, I decided to develop a machine learning based method.
+My Master thesis was conducted in the Chao lab at the Friedrich Miescher Institute for Biomedical Research (Basel, Switzerland). A large part of my project involved confocal microscopy of cellular samples. After realizing that traditional, thresholding based approaches are only able to segment so much, I decided to develop a machine learning based method. The results are shown here.
 
 ### Todo
 - [ ] Improve README file
