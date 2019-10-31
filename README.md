@@ -4,6 +4,7 @@ My Master thesis was conducted in the Chao lab at the Friedrich Miescher Institu
 
 ### Todo
 - [ ] Improve README file
+- [ ] Add requirements file
 - [ ] Add example images including my labels
 - [ ] Add other metrics to compare methods
 - [ ] Develop an alternative to resizing for rectangular image predictions
