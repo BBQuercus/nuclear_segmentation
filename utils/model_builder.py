@@ -3,10 +3,10 @@ import tensorflow as tf
 option_dict_conv = {'activation': 'relu', 'padding': 'same'}
 option_dict_bn = {'axis': -1, 'momentum': 0.9}
 
-def standard_unet(categorical=True, img_size=256):
+def standard_unet(categorical=True, img_size=None):
     '''
     '''
-
+    #TODO add shape assertion (%2**depth==0) or add padding
     x = tf.keras.layers.Input((img_size, img_size, 1))
 
     # Down
@@ -68,13 +68,14 @@ def standard_unet(categorical=True, img_size=256):
 
     activation = 'softmax' if categorical else 'sigmoid'
     channels = 3 if categorical else 1
+
     y = tf.keras.layers.Conv2D(channels, (1, 1), activation=activation) (y)
 
     model = tf.keras.models.Model(inputs=[x], outputs=[y])
     
-    if categorical:
-        model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=[])
-    if not categorical:
-        model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+    # if categorical:
+    #     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=[])
+    # if not categorical:
+    #     model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
 
     return model

@@ -24,8 +24,10 @@ def random_sample_generator(x_list, y_list, batch_size, bit_depth, dim_size):
     do_augmentation = True
     borders = True
     channels = 3 if borders else 1
+
+    #TODO change to use every image per epoch (not random on each)
         
-    while(True):
+    while True:
             
         # Buffers for a batch of data
         x = np.zeros((batch_size, dim_size, dim_size, 1))
@@ -51,12 +53,12 @@ def random_sample_generator(x_list, y_list, batch_size, bit_depth, dim_size):
                 patch_y = _add_borders(patch_y)
                 patch_y = tf.keras.utils.to_categorical(patch_y)
 
-            if(do_augmentation):
+            if do_augmentation:
                 rand_flip = np.random.randint(low=0, high=2)
                 rand_rotate = np.random.randint(low=0, high=4)
                 
                 # Flip
-                if(rand_flip == 0):
+                if rand_flip==0:
                     patch_x = np.flip(patch_x, 0)
                     patch_y = np.flip(patch_y, 0)
                 
@@ -79,6 +81,52 @@ def random_sample_generator(x_list, y_list, batch_size, bit_depth, dim_size):
 
         # Return the buffer
         yield(x, y)
+
+
+def single_data_from_images(x_list, y_list, batch_size, bit_depth, dim_size):
+
+    borders = True
+    channels = 3 if borders else 1
+
+    while True:
+
+        # Buffers for a batch of data
+        x = np.zeros((batch_size, dim_size, dim_size, 1))
+        y = np.zeros((batch_size, dim_size, dim_size, channels))
+
+        # Get one image at a time
+        for i in range(batch_size):
+                       
+            # Get random image
+            img_index = np.random.randint(low=0, high=len(x_list))
+            
+            # Open images and normalize
+            x_curr = skimage.io.imread(x_list[img_index]) * (1./(2**bit_depth - 1))
+            y_curr = skimage.io.imread(y_list[img_index])
+
+            # Get random crop
+            start_dim1 = np.random.randint(low=0, high=x_curr.shape[0] - dim_size) if x_curr.shape[0]>dim_size else 0
+            start_dim2 = np.random.randint(low=0, high=x_curr.shape[1] - dim_size) if x_curr.shape[1]>dim_size else 0
+            patch_x = x_curr[start_dim1:start_dim1 + dim_size, start_dim2:start_dim2 + dim_size] #* rescale_factor
+            patch_y = y_curr[start_dim1:start_dim1 + dim_size, start_dim2:start_dim2 + dim_size] #* rescale_factor_labels
+
+            if borders:
+                patch_y = _add_borders(patch_y)
+                patch_y = tf.keras.utils.to_categorical(patch_y)
+                    
+            # Save image to buffer
+            x[i,:,:,0] = patch_x
+
+            if borders:
+                y[i, :, :, 0:channels] = patch_y
+            else:
+                y[i,:,:,0] = patch_y
+
+        # Return the buffer
+        yield(x, y)
+
+
+
 
 def stardist_importer(x_list, y_list, axis_norm=(0, 1)):
     '''

@@ -3,6 +3,7 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 
 import tqdm
+import cv2
 import skimage
 import csbdeep.utils
 import stardist
@@ -15,32 +16,31 @@ def _otsu_single(img):
 def otsu_batch(imgs):
     '''
     '''
-    return [_otsu_single(img) for img in imgs]
+    return [_otsu_single(img) for img in tqdm.tqdm(imgs, desc='Predicting: ')]
 
-def _unet_single(model, img, base=256, bit_depth=16):
+def _unet_single(model, img, bit_depth=16):
     '''
     '''
+    def __next_power(x, k=2):
+        y, power = 0, 1
+        while y < x:
+            y = k**power
+            power += 1
+        return y
+
     pred_img = img * (1./(2**bit_depth - 1))
-
-    # TODO – find sliding window alternative
-    # if not img.shape[0]%base==0 and not img.shape[1]%base==0:
-    #     def __round(x, base):
-    #         return base * round(x/base)
-
-    #     dim = max([__round(i, base) for i in img.shape])
-    #     pred_img = skimage.transform.resize(img, (dim, dim), mode='constant', preserve_range=True)
-
-    pred_img = skimage.transform.resize(img, (base*2, base*2), mode='constant', preserve_range=True)
-
+    pad_bottom = __next_power(pred_img.shape[0]) - pred_img.shape[0]
+    pad_right = __next_power(pred_img.shape[1]) - pred_img.shape[1]
+    pred_img = cv2.copyMakeBorder(pred_img, 0, pad_bottom, 0, pad_right, cv2.BORDER_REFLECT)
     pred_img = model.predict(pred_img[None,...,None]).squeeze()
-    pred_img = skimage.transform.resize(pred_img, img.shape, mode='constant', preserve_range=True)
+    pred_img = pred_img[:pred_img.shape[0]-pad_bottom, :pred_img.shape[1]-pad_right, :]
 
     return pred_img
 
 def unet_batch(model, imgs):
     '''Predict all images using a UNet model.
     '''
-    return [_unet_single(model, img) for img in imgs]
+    return [_unet_single(model, img) for img in tqdm.tqdm(imgs, desc='Predicting: ')]
 
 def _stardist_single(model, img, details=True):
     '''
@@ -54,7 +54,7 @@ def _stardist_single(model, img, details=True):
 def stardist_batch(model, imgs):
     '''Predict all images using the stardist model.
     '''
-    return [_stardist_single(model, img, details=False) for img in imgs]
+    return [_stardist_single(model, img, details=False) for img in tqdm.tqdm(imgs, desc='Predicting: ')]
 
 def _starnet_single(model_star, model_unet, img, watershed=True):
     '''Combine stardist instance prediction with UNet segmentation.
@@ -70,8 +70,8 @@ def _starnet_single(model_star, model_unet, img, watershed=True):
     pred_star = _stardist_single(model_star, img, details=False)
     pred_unet = _unet_single(model_unet, img)
 
-    img_centroids = __instances_to_centroids(pred_star)
     #TODO – Find optimal prediction, prob. with erosion of borders
+    img_centroids = __instances_to_centroids(pred_star)
     img_area = (1 - pred_unet[:,:,0]>0.5).astype(np.int)
 
     if watershed:
@@ -82,4 +82,4 @@ def _starnet_single(model_star, model_unet, img, watershed=True):
 def starnet_batch(model_star, model_unet, imgs, watershed=True):
     '''
     '''
-    return [_starnet_single(model_star, model_unet, img, watershed=True) for img in imgs]
+    return [_starnet_single(model_star, model_unet, img, watershed=True) for img in tqdm.tqdm(imgs, desc='Predicting: ')]

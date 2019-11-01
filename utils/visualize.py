@@ -60,10 +60,10 @@ def unet_example(model, x_images, y_images, ix=None):
     x_image = x_images[ix]
     y_image = y_images[ix]
 
-    pred = utils.predictions._unet_single(model, x_image, base=256)
+    pred = utils.predictions._unet_single(model, x_image)
 
     _, ax = plt.subplots(2, 2, figsize=(14, 10))
-    ax[0,0].set_title('Original Image')
+    ax[0,0].set_title(f'Original Image – #{ix}')
     ax[0,0].imshow(x_image)
     ax[0,0].axis('off')
     ax[0,1].set_title('Ground Truth')
@@ -89,7 +89,7 @@ def stardist_example(model, x_images, y_images, ix=None):
     coord, points, prob = details['coord'], details['points'], details['prob']
 
     _, ax = plt.subplots(2, 2, figsize=(14, 10))
-    ax[0,0].set_title('Original Image')
+    ax[0,0].set_title(f'Original Image – #{ix}')
     ax[0,0].imshow(x_image)
     ax[0,0].axis('off')
     ax[0,1].set_title('Ground Truth')
@@ -116,18 +116,18 @@ def starnet_example(model_star, model_unet, x_images, y_images, watershed=True, 
     pred = utils.predictions._starnet_single(model_star, model_unet, x_image)
     
     _, ax = plt.subplots(2, 3, figsize=(16, 10))
-    ax[0,0].set_title('Original Image')
+    ax[0,0].set_title(f'Original Image – #{ix}')
     ax[0,0].imshow(x_image)
     ax[0,0].axis('off')
     ax[0,1].set_title('Ground Truth')
-    ax[0,1].imshow(y_image)
+    ax[0,1].imshow(y_image, cmap=lbl_cmap)
     ax[0,1].axis('off')
     ax[0,2].axis('off')
     ax[1,0].set_title('Stardist prediction')
-    ax[1,0].imshow(pred_star)
+    ax[1,0].imshow(pred_star, cmap=lbl_cmap)
     ax[1,0].axis('off')
     ax[1,1].set_title('Starnet prediction')
-    ax[1,1].imshow(pred)
+    ax[1,1].imshow(pred, cmap=lbl_cmap)
     ax[1,1].axis('off')
     ax[1,2].set_title('Intersection')
     ax[1,2].imshow(_visualize_intersection(y_image>0, pred>0))

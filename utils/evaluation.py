@@ -56,14 +56,16 @@ def optimize_threshold(Y_true, Y_hat, draw=True):
 def measure_iou(Y_true, Y_hat, name=None, prob=0.5):
     '''
     '''
+    Y_true, Y_hat = zip(*[(yt, yh) for yt, yh in zip(Y_true, Y_hat) if yt.shape == yh.shape])
     IOU = np.array([get_iou_vector(y_true>0, y_hat>prob) for y_true, y_hat in zip(Y_true, Y_hat)])
     
     print(f'Average IoU: {np.average(IOU)}')
     print(f'Stdev IoU: {np.std(IOU)}')
     
     sns.boxplot(IOU)
-    plt.xlim(0, 1)
     plt.title('Intersection over Union')
+    plt.xlim(0, 1)
+    plt.xticks([])
     sns.despine(left=True, bottom=False)
     plt.show()
     

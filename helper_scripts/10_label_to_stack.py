@@ -45,10 +45,10 @@ def import_image(path):
     img = img[:,:,0] if img.ndim==3 else img
 
 def main():
-    indir = '/Users/beichenberger/Downloads/Labeling/Nuclei_dapi/labeled/'
-    outdir = '/Users/beichenberger/Downloads/Training/Stardist_training/train_val'
-    fiji = True
-    bbbc = False
+    indir = '/Users/beichenberger/Documents/Github/nuclear_segmentation/data/BBBC039'
+    outdir = '/Users/beichenberger/Documents/Github/nuclear_segmentation/data/test_new'
+    fiji = False
+    bbbc = True
     
     if fiji:
         indir_ids = next(os.walk(indir))[1]
@@ -74,7 +74,7 @@ def main():
 
             # Images
             img = skimage.io.imread(img_files[i])
-            img = img[:,:,0] if img.ndim==3 else img
+            img = img[:,:,0] if img.ndim==3 else img[:519,:]
             skimage.io.imsave(f"{outdir}/images/{out_name}.tif", img.astype(dtype=np.uint16), check_contrast=False)
 
             # Masks
