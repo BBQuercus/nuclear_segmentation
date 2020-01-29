@@ -32,7 +32,7 @@ def standard_unet(categorical=True, img_size=None):
     d = tf.keras.layers.BatchNormalization(**option_dict_bn) (d)
     d = tf.keras.layers.Conv2D(64, (3, 3), **option_dict_conv) (d)
     d = tf.keras.layers.BatchNormalization(**option_dict_bn) (d)
-    y = tf.keras.layers.MaxPool2D(pool_size=(2, 2)) (d)
+    y = tf.keras.layers.MaxPool2D((2, 2)) (d)
 
     # Up
     e = tf.keras.layers.Conv2D(128, (3, 3), **option_dict_conv) (y)

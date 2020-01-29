@@ -6,6 +6,42 @@ import skimage.io
 import skimage.measure
 import skimage.transform
 
+def main():
+    indir = '/Users/beichenberger/Files/Labeling/Nuclei_other/labeled/'
+    outdir = '/Users/beichenberger/Files/Labeling/Nuclei_other/train_val/'
+    fiji = True
+    bbbc = False
+    
+    if fiji:
+        indir_ids = next(os.walk(indir))[1]
+
+        for n, id_ in tqdm.tqdm(enumerate(indir_ids), total=len(indir_ids)):
+            path = indir + id_
+            
+            # Images
+            img = skimage.io.imread(f'{path}/images/{id_}.tif')
+            img = img[:,:,0] if img.ndim==3 else img
+            skimage.io.imsave(f'{outdir}/images/{id_}.tif', img.astype(dtype=np.uint16), check_contrast=False)
+            
+            # Masks
+            mask = import_masks_fiji(path)
+            skimage.io.imsave(f'{outdir}/masks/{id_}.tif', mask.astype(dtype=np.uint16), check_contrast=False)
+
+    if bbbc:
+        img_files = sorted(glob.glob(f'{indir}/images/*.tif'))
+        mask_files = sorted(glob.glob(f'{indir}/masks/*.png'))
+
+        for i in tqdm.tqdm(range(len(img_files))):
+            out_name = (img_files[i].split('/')[-1]).split('.')[0]
+
+            # Images
+            img = skimage.io.imread(img_files[i])
+            img = img[:,:,0] if img.ndim==3 else img[:519,:]
+            skimage.io.imsave(f"{outdir}/images/{out_name}.tif", img.astype(dtype=np.uint16), check_contrast=False)
+
+            # Masks
+            mask = import_masks_bbbc(mask_files[i])
+            skimage.io.imsave(f"{outdir}/masks/{out_name}.tif", mask.astype(dtype=np.uint16), check_contrast=False)
 
 def import_masks_bbbc(path):
     '''Imports masks in the format of BBBC labels.
@@ -43,44 +79,6 @@ def import_masks_fiji(path):
 def import_image(path):
     img = skimage.io.imread(f'{path}/images/{id_}.tif')
     img = img[:,:,0] if img.ndim==3 else img
-
-def main():
-    indir = '/Users/beichenberger/Documents/Github/nuclear_segmentation/data/BBBC039'
-    outdir = '/Users/beichenberger/Documents/Github/nuclear_segmentation/data/test_new'
-    fiji = False
-    bbbc = True
-    
-    if fiji:
-        indir_ids = next(os.walk(indir))[1]
-
-        for n, id_ in tqdm.tqdm(enumerate(indir_ids), total=len(indir_ids)):
-            path = indir + id_
-            
-            # Images
-            img = skimage.io.imread(f'{path}/images/{id_}.tif')
-            img = img[:,:,0] if img.ndim==3 else img
-            skimage.io.imsave(f'{outdir}/images/{id_}.tif', img.astype(dtype=np.uint16), check_contrast=False)
-            
-            # Masks
-            mask = import_masks_fiji(path)
-            skimage.io.imsave(f'{outdir}/masks/{id_}.tif', mask.astype(dtype=np.uint16), check_contrast=False)
-
-    if bbbc:
-        img_files = sorted(glob.glob(f'{indir}/images/*.tif'))
-        mask_files = sorted(glob.glob(f'{indir}/masks/*.png'))
-
-        for i in tqdm.tqdm(range(len(img_files))):
-            out_name = (img_files[i].split('/')[-1]).split('.')[0]
-
-            # Images
-            img = skimage.io.imread(img_files[i])
-            img = img[:,:,0] if img.ndim==3 else img[:519,:]
-            skimage.io.imsave(f"{outdir}/images/{out_name}.tif", img.astype(dtype=np.uint16), check_contrast=False)
-
-            # Masks
-            mask = import_masks_bbbc(mask_files[i])
-            skimage.io.imsave(f"{outdir}/masks/{out_name}.tif", mask.astype(dtype=np.uint16), check_contrast=False)
-            
 
 if __name__ == "__main__":
     main()

@@ -2,8 +2,10 @@ import glob
 import numpy as np
 import skimage.io
 
-files = glob.glob('*561dual-triple.stk')
+root = '/Users/beichenberger/Files/Labeling/Granules/DM_Franklin200x_G3BP-SNAP/'
+files = glob.glob(f'{root}*.stk')
 
 for f in files:
     i = skimage.io.imread(f)
-    skimage.io.imsave(f"{f.split('.')[0]}.tif", i[0])
+    i = np.max(i, axis=0)
+    skimage.io.imsave(f"{f.split('.')[0]}.tif", i)

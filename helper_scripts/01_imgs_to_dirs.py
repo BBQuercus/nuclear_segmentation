@@ -6,7 +6,7 @@ import tqdm
 import skimage.io
 
 # Generate image / mask folder to label images
-root = '/Users/beichenberger/Downloads/Granules/'
+root = '/Users/beichenberger/Files/Labeling/Granules/DM_SIM_G3BP-SNAP/'
 files = glob.glob(f'{root}*.tif')
 
 for f in tqdm.tqdm(files):
